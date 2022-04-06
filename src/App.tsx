@@ -1,45 +1,32 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
-
+import { Routes, Route, Link } from "react-router-dom";
+import Footer from "./components/client/Footer";
+import Header from "./components/client/Header";
+import ProductDetail from "./components/client/ProductDetail";
+import ProductDetailAdmin from "./components/admin/ProductDetail";
+import ProductList from "./components/client/ProductList";
+import ProductForm from "./components/admin/ProductForm";
+import "./index.css";
+import Dashboard from "./pages/admin";
+import Login from "./pages/auth/login";
+import Register from "./pages/auth/register";
+import HomePage from "./pages";
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
+      <Header transparent />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="signin" element={<Login />} />
+        <Route path="signup" element={<Register />} />
+        <Route path="/products" element={<ProductList />} />
+        <Route path="/detail" element={<ProductDetail />} />
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/form" element={<ProductForm />} />
+        <Route path="/admin/detail" element={<ProductDetailAdmin />} />
+      </Routes>
+      <Footer />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
