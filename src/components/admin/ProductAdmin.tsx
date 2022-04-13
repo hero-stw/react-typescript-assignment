@@ -1,26 +1,58 @@
-import React from "react";
+import { Switch } from "@headlessui/react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  changeStatusOfProduct,
+  deleteProduct,
+  getProducts,
+} from "../../api/products";
+import { PRODUCT_TYPE } from "../../types/ProductType";
 
 type Props = {};
 
 const ProductAdmin = (props: Props) => {
+  const [products, setProducts] = React.useState<PRODUCT_TYPE[]>([]);
+  const handleGetProducts = async () => {
+    const res = await getProducts().then((res) => {
+      setProducts(res.data);
+    });
+  };
+  const changeStatus = async (id: string, status: boolean) => {
+    const result = await changeStatusOfProduct(id, status).then((res) => {
+      console.log(res);
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this product?")) {
+      const result = await deleteProduct(id).then((res) => {
+        console.log(res);
+        setProducts(products.filter((product) => product._id !== id));
+        alert("Product deleted successfully");
+      });
+    }
+  };
+  React.useEffect(() => {
+    handleGetProducts();
+  }, []);
+
   return (
     <div
       id="main-content"
-      className="h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64"
+      className="relative flex h-full w-full flex-col overflow-y-auto bg-gray-50 lg:ml-64"
     >
-      <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
+      <div className="block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5">
         <div className="mb-1 w-full">
           <div className="mb-4">
-            <nav className="flex mb-5" aria-label="Breadcrumb">
+            <nav className="mb-5 flex" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
                   <a
                     href="#"
-                    className="text-gray-700 hover:text-gray-900 inline-flex items-center"
+                    className="inline-flex items-center text-gray-700 hover:text-gray-900"
                   >
                     <svg
-                      className="w-5 h-5 mr-2.5"
+                      className="mr-2.5 h-5 w-5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
@@ -33,20 +65,20 @@ const ProductAdmin = (props: Props) => {
                 <li>
                   <div className="flex items-center">
                     <svg
-                      className="w-6 h-6 text-gray-400"
+                      className="h-6 w-6 text-gray-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd"
+                        clipRule="evenodd"
                       ></path>
                     </svg>
                     <a
                       href="#"
-                      className="text-gray-700 hover:text-gray-900 ml-1 md:ml-2 text-sm font-medium"
+                      className="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 md:ml-2"
                     >
                       E-commerce
                     </a>
@@ -55,19 +87,19 @@ const ProductAdmin = (props: Props) => {
                 <li>
                   <div className="flex items-center">
                     <svg
-                      className="w-6 h-6 text-gray-400"
+                      className="h-6 w-6 text-gray-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd"
+                        clipRule="evenodd"
                       ></path>
                     </svg>
                     <span
-                      className="text-gray-400 ml-1 md:ml-2 text-sm font-medium"
+                      className="ml-1 text-sm font-medium text-gray-400 md:ml-2"
                       aria-current="page"
                     >
                       Products
@@ -76,84 +108,84 @@ const ProductAdmin = (props: Props) => {
                 </li>
               </ol>
             </nav>
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
               All products
             </h1>
           </div>
-          <div className="block sm:flex items-center md:divide-x md:divide-gray-100">
-            <form className="sm:pr-3 mb-4 sm:mb-0" action="#" method="GET">
+          <div className="block items-center sm:flex md:divide-x md:divide-gray-100">
+            <form className="mb-4 sm:mb-0 sm:pr-3" action="#" method="GET">
               <label htmlFor="products-search" className="sr-only">
                 Search
               </label>
-              <div className="mt-1 relative sm:w-64 xl:w-96">
+              <div className="relative mt-1 sm:w-64 xl:w-96">
                 <input
                   type="text"
                   name="email"
                   id="products-search"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
                   placeholder="Search for products"
                 />
               </div>
             </form>
-            <div className="flex items-center sm:justify-end w-full">
-              <div className="hidden md:flex pl-2 space-x-1">
+            <div className="flex w-full items-center sm:justify-end">
+              <div className="hidden space-x-1 pl-2 md:flex">
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 cursor-pointer p-1 hover:bg-gray-100 rounded inline-flex justify-center"
+                  className="inline-flex cursor-pointer justify-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="h-6 w-6"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     ></path>
                   </svg>
                 </a>
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 cursor-pointer p-1 hover:bg-gray-100 rounded inline-flex justify-center"
+                  className="inline-flex cursor-pointer justify-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="h-6 w-6"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     ></path>
                   </svg>
                 </a>
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 cursor-pointer p-1 hover:bg-gray-100 rounded inline-flex justify-center"
+                  className="inline-flex cursor-pointer justify-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="h-6 w-6"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     ></path>
                   </svg>
                 </a>
                 <a
                   href="#"
-                  className="text-gray-500 hover:text-gray-900 cursor-pointer p-1 hover:bg-gray-100 rounded inline-flex justify-center"
+                  className="inline-flex cursor-pointer justify-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="h-6 w-6"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -162,34 +194,36 @@ const ProductAdmin = (props: Props) => {
                   </svg>
                 </a>
               </div>
-              <button
-                type="button"
-                data-modal-toggle="add-product-modal"
-                className="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2 text-center sm:ml-auto"
-              >
-                <svg
-                  className="-ml-1 mr-2 h-6 w-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
+              <Link to="/admin/create" className="ml-auto">
+                <button
+                  type="button"
+                  data-modal-toggle="add-product-modal"
+                  className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:ml-auto"
                 >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-                Add product
-              </button>
+                  <svg
+                    className="-ml-1 mr-2 h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                  Add product
+                </button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
       <div className="flex flex-col">
         <div className="overflow-x-auto">
-          <div className="align-middle inline-block min-w-full">
-            <div className="shadow overflow-hidden">
-              <table className="table-fixed min-w-full divide-y divide-gray-200">
+          <div className="inline-block min-w-full align-middle">
+            <div className="overflow-hidden shadow">
+              <table className="min-w-full table-fixed divide-y divide-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
                     <th scope="col" className="p-4">
@@ -198,7 +232,7 @@ const ProductAdmin = (props: Props) => {
                           id="checkbox-all"
                           aria-describedby="checkbox-1"
                           type="checkbox"
-                          className="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-cyan-200 h-4 w-4 rounded"
+                          className="focus:ring-3 h-4 w-4 rounded border-gray-300 bg-gray-50 focus:ring-cyan-200"
                         />
                         <label htmlFor="checkbox-all" className="sr-only">
                           checkbox
@@ -207,69 +241,109 @@ const ProductAdmin = (props: Props) => {
                     </th>
                     <th
                       scope="col"
-                      className="p-4 text-left text-xs font-medium text-gray-500 uppercase"
+                      className="p-4 text-left text-xs font-medium uppercase text-gray-500"
                     >
                       Product Name
                     </th>
                     <th
                       scope="col"
-                      className="p-4 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      Technology
-                    </th>
-                    <th
-                      scope="col"
-                      className="p-4 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      ID
-                    </th>
-                    <th
-                      scope="col"
-                      className="p-4 text-left text-xs font-medium text-gray-500 uppercase"
+                      className="p-4 text-left text-xs font-medium uppercase text-gray-500"
                     >
                       Price
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                    >
+                      Category
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                    >
+                      Status
                     </th>
                     <th scope="col" className="p-4"></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  <tr className="hover:bg-gray-100">
-                    <td className="p-4 w-4">
-                      <div className="flex items-center">
-                        <input
-                          id="checkbox-194556"
-                          aria-describedby="checkbox-1"
-                          type="checkbox"
-                          className="bg-gray-50 border-gray-300 focus:ring-3 focus:ring-cyan-200 h-4 w-4 rounded"
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {products.map((product: PRODUCT_TYPE) => (
+                    <tr key={product._id} className="hover:bg-gray-100">
+                      <td className="w-4 p-4">
+                        <div className="flex items-center">
+                          <input
+                            id="checkbox-194556"
+                            aria-describedby="checkbox-1"
+                            type="checkbox"
+                            className="focus:ring-3 h-4 w-4 rounded border-gray-300 bg-gray-50 focus:ring-cyan-200"
+                          />
+                          <label htmlFor="checkbox-194556" className="sr-only">
+                            checkbox
+                          </label>
+                        </div>
+                      </td>
+                      <td className="flex items-start space-x-4 whitespace-nowrap p-4 text-sm font-normal text-gray-500">
+                        <img
+                          src={product.image}
+                          alt=""
+                          className="h-[60px] w-[60px] "
                         />
-                        <label htmlFor="checkbox-194556" className="sr-only">
-                          checkbox
-                        </label>
-                      </div>
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-                      <div className="text-base font-semibold text-gray-900">
-                        Education Dashboard
-                      </div>
-                      <div className="text-sm font-normal text-gray-500">
-                        Html templates
-                      </div>
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-base font-medium text-gray-900">
-                      Angular
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-base font-medium text-gray-900">
-                      #194556
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-base font-medium text-gray-900">
-                      $149
-                    </td>
-                    <td className="p-4 whitespace-nowrap space-x-2">
-                      <Link to={"/admin/detail"}>
+                        <div>
+                          <div className="text-base font-semibold text-gray-900">
+                            {product.name}
+                          </div>
+                          <div className="text-sm font-normal text-gray-500">
+                            {product.createdAt}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
+                        {product.price}
+                      </td>
+                      <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
+                        {product.category}
+                      </td>
+                      <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
+                        <select
+                          onChange={(e) =>
+                            changeStatus(
+                              product._id,
+                              e.target.value == "1" ? true : false
+                            )
+                          }
+                        >
+                          <option value="1">Active</option>
+                          <option value="0">Inactive</option>
+                        </select>
+                      </td>
+                      <td className="space-x-2 whitespace-nowrap p-4">
+                        <Link to={"/admin/edit/" + product._id}>
+                          <button
+                            type="button"
+                            data-modal-toggle="product-modal"
+                            className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700"
+                          >
+                            <svg
+                              className="mr-2 h-5 w-5"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                              <path
+                                fillRule="evenodd"
+                                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                clipRule="evenodd"
+                              ></path>
+                            </svg>
+                            Edit item
+                          </button>
+                        </Link>
                         <button
                           type="button"
-                          data-modal-toggle="product-modal"
-                          className="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center"
+                          data-modal-toggle="delete-product-modal"
+                          className="inline-flex items-center rounded-lg bg-red-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 "
+                          onClick={() => handleDelete(product._id)}
                         >
                           <svg
                             className="mr-2 h-5 w-5"
@@ -277,88 +351,68 @@ const ProductAdmin = (props: Props) => {
                             viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg"
                           >
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                             <path
-                              fill-rule="evenodd"
-                              d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                              clip-rule="evenodd"
+                              fillRule="evenodd"
+                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                              clipRule="evenodd"
                             ></path>
                           </svg>
-                          Edit item
+                          Delete item
                         </button>
-                      </Link>
-                      <button
-                        type="button"
-                        data-modal-toggle="delete-product-modal"
-                        className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2 text-center"
-                      >
-                        <svg
-                          className="mr-2 h-5 w-5"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                            clip-rule="evenodd"
-                          ></path>
-                        </svg>
-                        Delete item
-                      </button>
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
-      <div className="bg-white sticky sm:flex items-center w-full sm:justify-between bottom-0 right-0 border-t border-gray-200 p-4">
-        <div className="flex items-center mb-4 sm:mb-0">
+      <div className="sticky bottom-0 right-0 mt-auto w-full items-center border-t border-gray-200 bg-white p-4 sm:flex sm:justify-between">
+        <div className="mb-4 flex items-center sm:mb-0">
           <a
             href="#"
-            className="text-gray-500 hover:text-gray-900 cursor-pointer p-1 hover:bg-gray-100 rounded inline-flex justify-center"
+            className="inline-flex cursor-pointer justify-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
           >
             <svg
-              className="w-7 h-7"
+              className="h-7 w-7"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               ></path>
             </svg>
           </a>
           <a
             href="#"
-            className="text-gray-500 hover:text-gray-900 cursor-pointer p-1 hover:bg-gray-100 rounded inline-flex justify-center mr-2"
+            className="mr-2 inline-flex cursor-pointer justify-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
           >
             <svg
-              className="w-7 h-7"
+              className="h-7 w-7"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               ></path>
             </svg>
           </a>
           <span className="text-sm font-normal text-gray-500">
-            Showing <span className="text-gray-900 font-semibold">1-20</span> of{" "}
-            <span className="text-gray-900 font-semibold">2290</span>
+            Showing <span className="font-semibold text-gray-900">1-20</span> of{" "}
+            <span className="font-semibold text-gray-900">2290</span>
           </span>
         </div>
         <div className="flex items-center space-x-3">
           <a
             href="#"
-            className="flex-1 text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center justify-center rounded-lg text-sm px-3 py-2 text-center"
+            className="inline-flex flex-1 items-center justify-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200"
           >
             <svg
               className="-ml-1 mr-1 h-5 w-5"
@@ -367,16 +421,16 @@ const ProductAdmin = (props: Props) => {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               ></path>
             </svg>
             Previous
           </a>
           <a
             href="#"
-            className="flex-1 text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center justify-center rounded-lg text-sm px-3 py-2 text-center"
+            className="inline-flex flex-1 items-center justify-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200"
           >
             Next
             <svg
@@ -386,9 +440,9 @@ const ProductAdmin = (props: Props) => {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               ></path>
             </svg>
           </a>
@@ -396,271 +450,28 @@ const ProductAdmin = (props: Props) => {
       </div>
 
       <div
-        className="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full"
-        id="product-modal"
-        aria-hidden="true"
-      >
-        <div className="relative w-full max-w-2xl px-4 h-full md:h-auto">
-          <div className="bg-white rounded-lg shadow relative">
-            <div className="flex items-start justify-between p-5 border-b rounded-t">
-              <h3 className="text-xl font-semibold">Edit product</h3>
-              <button
-                type="button"
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-                data-modal-toggle="product-modal"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <form action="#">
-                <div className="grid grid-cols-6 gap-6">
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="product-name"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      name="product-name"
-                      id="product-name"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="Apple Imac 27”"
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="category"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      name="category"
-                      id="category"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="Electronics"
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="brand"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Brand
-                    </label>
-                    <input
-                      type="text"
-                      name="brand"
-                      id="brand"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="Apple"
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="price"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Price
-                    </label>
-                    <input
-                      type="number"
-                      name="price"
-                      id="price"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="$2300"
-                    />
-                  </div>
-                  <div className="col-span-full">
-                    <label
-                      htmlFor="product-details"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Product Details
-                    </label>
-                    <textarea
-                      id="product-details"
-                      //   rows="6"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-4"
-                      placeholder="e.g. 3.8GHz 8-core 10th-generation Intel Core i7 processor, Turbo Boost up to 5.0GHz, Ram 16 GB DDR4 2300Mhz"
-                    ></textarea>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="p-6 border-t border-gray-200 rounded-b">
-              <button
-                className="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                type="submit"
-              >
-                Save all
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full"
-        id="add-product-modal"
-        aria-hidden="true"
-      >
-        <div className="relative w-full max-w-2xl px-4 h-full md:h-auto">
-          <div className="bg-white rounded-lg shadow relative">
-            <div className="flex items-start justify-between p-5 border-b rounded-t">
-              <h3 className="text-xl font-semibold">Add product</h3>
-              <button
-                type="button"
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-                data-modal-toggle="add-product-modal"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <form action="#">
-                <div className="grid grid-cols-6 gap-6">
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="product-name"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      name="product-name"
-                      id="product-name"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="Apple Imac 27”"
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="category"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      name="category"
-                      id="category"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="Electronics"
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="brand"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Brand
-                    </label>
-                    <input
-                      type="text"
-                      name="brand"
-                      id="brand"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="Apple"
-                    />
-                  </div>
-                  <div className="col-span-6 sm:col-span-3">
-                    <label
-                      htmlFor="price"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Price
-                    </label>
-                    <input
-                      type="number"
-                      name="price"
-                      id="price"
-                      className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                      placeholder="$2300"
-                    />
-                  </div>
-                  <div className="col-span-full">
-                    <label
-                      htmlFor="product-details"
-                      className="text-sm font-medium text-gray-900 block mb-2"
-                    >
-                      Product Details
-                    </label>
-                    <textarea
-                      id="product-details"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-4"
-                      placeholder="e.g. 3.8GHz 8-core 10th-generation Intel Core i7 processor, Turbo Boost up to 5.0GHz, Ram 16 GB DDR4 2300Mhz"
-                    ></textarea>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="p-6 border-t border-gray-200 rounded-b">
-              <button
-                className="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                type="submit"
-              >
-                Add product
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full"
+        className={`h-modal fixed top-4 left-0 right-0 z-50 hidden items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 sm:h-full md:inset-0`}
         id="delete-product-modal"
         aria-hidden="true"
       >
-        <div className="relative w-full max-w-md px-4 h-full md:h-auto">
-          <div className="bg-white rounded-lg shadow relative">
+        <div className="relative h-full w-full max-w-md px-4 md:h-auto">
+          <div className="relative rounded-lg bg-white shadow">
             <div className="flex justify-end p-2">
               <button
                 type="button"
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+                className="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
                 data-modal-toggle="delete-product-modal"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="h-5 w-5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
               </button>
@@ -668,35 +479,31 @@ const ProductAdmin = (props: Props) => {
 
             <div className="p-6 pt-0 text-center">
               <svg
-                className="w-20 h-20 text-red-600 mx-auto"
+                className="mx-auto h-20 w-20 text-red-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 ></path>
               </svg>
-              <h3 className="text-xl font-normal text-gray-500 mt-5 mb-6">
+              <h3 className="mt-5 mb-6 text-xl font-normal text-gray-500">
                 Are you sure you want to delete this product?
               </h3>
-              <a
-                href="#"
-                className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2"
-              >
+              <button className="mr-2 inline-flex items-center rounded-lg bg-red-600 px-3 py-2.5 text-center text-base font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300">
                 Yes, I'm sure
-              </a>
-              <a
-                href="#"
-                className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-cyan-200 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center"
+              </button>
+              <button
+                className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-center text-base font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-cyan-200"
                 data-modal-toggle="delete-product-modal"
               >
                 No, cancel
-              </a>
+              </button>
             </div>
           </div>
         </div>
