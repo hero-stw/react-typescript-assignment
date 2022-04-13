@@ -5,7 +5,7 @@ export const getProducts = () => {
   return instance.get("/products");
 };
 
-export const getProduct = (id: string) => {
+export const getProduct = (id: string | undefined) => {
   return instance.get(`/products/${id}`);
 };
 export const addProduct = (product: PRODUCT_TYPE) => {
@@ -20,6 +20,6 @@ export const deleteProduct = (id: string) => {
   return instance.delete(`/products/${id}`);
 };
 
-export const changeStatusOfProduct = (id: string, status: boolean) => {
-  return instance.put(`/products/${id}`, { status });
+export const changeStatusOfProduct = (id: string, status: number) => {
+  return instance.put(`/products/${id}`, { status: status });
 };

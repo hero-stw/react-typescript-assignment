@@ -4,7 +4,7 @@ export type PRODUCT_TYPE = {
   price: number;
   description: string;
   image: string;
-  status: boolean;
+  status: number;
   feature: boolean;
   category: string;
   createdAt: string;

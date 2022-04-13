@@ -1,9 +1,11 @@
 import { Switch } from "@headlessui/react";
+import { EyeIcon } from "@heroicons/react/solid";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   changeStatusOfProduct,
   deleteProduct,
+  getProduct,
   getProducts,
 } from "../../api/products";
 import { PRODUCT_TYPE } from "../../types/ProductType";
@@ -12,14 +14,29 @@ type Props = {};
 
 const ProductAdmin = (props: Props) => {
   const [products, setProducts] = React.useState<PRODUCT_TYPE[]>([]);
+  const [productTarget, setProductTarget] = React.useState<PRODUCT_TYPE[]>([]);
+  const [modalStatus, setModalStatus] = React.useState<boolean>(false);
+  const status = [
+    {
+      label: "Active",
+      value: 1,
+    },
+    {
+      label: "Inactive",
+      value: 0,
+    },
+  ];
   const handleGetProducts = async () => {
     const res = await getProducts().then((res) => {
       setProducts(res.data);
     });
   };
-  const changeStatus = async (id: string, status: boolean) => {
+  const changeStatus = async (id: string, status: number) => {
     const result = await changeStatusOfProduct(id, status).then((res) => {
-      console.log(res);
+      if (res.status === 200) {
+        handleGetProducts();
+        alert("Status changed");
+      }
     });
   };
 
@@ -31,6 +48,13 @@ const ProductAdmin = (props: Props) => {
         alert("Product deleted successfully");
       });
     }
+  };
+
+  const handleModal = async (id: string | undefined) => {
+    const product = await getProduct(id).then((response) => {
+      setProductTarget(response.data);
+    });
+    setModalStatus(true);
   };
   React.useEffect(() => {
     handleGetProducts();
@@ -268,7 +292,10 @@ const ProductAdmin = (props: Props) => {
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {products.map((product: PRODUCT_TYPE) => (
-                    <tr key={product._id} className="hover:bg-gray-100">
+                    <tr
+                      key={product._id}
+                      className="items-center hover:bg-gray-100"
+                    >
                       <td className="w-4 p-4">
                         <div className="flex items-center">
                           <input
@@ -305,23 +332,54 @@ const ProductAdmin = (props: Props) => {
                       </td>
                       <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
                         <select
+                          value={product.status}
                           onChange={(e) =>
-                            changeStatus(
-                              product._id,
-                              e.target.value == "1" ? true : false
-                            )
+                            changeStatus(product._id, +e.target.value)
                           }
                         >
-                          <option value="1">Active</option>
-                          <option value="0">Inactive</option>
+                          {status.map((item) => (
+                            <option value={item.value}>{item.label}</option>
+                          ))}
                         </select>
                       </td>
-                      <td className="space-x-2 whitespace-nowrap p-4">
-                        <Link to={"/admin/edit/" + product._id}>
+                      <td className=" items-center space-x-2 whitespace-nowrap p-4">
+                        <div className="flex h-full items-center space-x-3">
                           <button
                             type="button"
                             data-modal-toggle="product-modal"
                             className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700"
+                            onClick={() => handleModal(product._id)}
+                          >
+                            <EyeIcon className="mr-3 h-4 w-4" />
+                            <span>Detail</span>
+                          </button>
+                          <Link to={"/admin/edit/" + product._id}>
+                            <button
+                              type="button"
+                              data-modal-toggle="product-modal"
+                              className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700"
+                            >
+                              <svg
+                                className="mr-2 h-5 w-5"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                                <path
+                                  fillRule="evenodd"
+                                  d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                  clipRule="evenodd"
+                                ></path>
+                              </svg>
+                              Edit item
+                            </button>
+                          </Link>
+                          <button
+                            type="button"
+                            data-modal-toggle="delete-product-modal"
+                            className="inline-flex items-center rounded-lg bg-red-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 "
+                            onClick={() => handleDelete(product._id)}
                           >
                             <svg
                               className="mr-2 h-5 w-5"
@@ -329,36 +387,15 @@ const ProductAdmin = (props: Props) => {
                               viewBox="0 0 20 20"
                               xmlns="http://www.w3.org/2000/svg"
                             >
-                              <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                               <path
                                 fillRule="evenodd"
-                                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                 clipRule="evenodd"
                               ></path>
                             </svg>
-                            Edit item
+                            Delete item
                           </button>
-                        </Link>
-                        <button
-                          type="button"
-                          data-modal-toggle="delete-product-modal"
-                          className="inline-flex items-center rounded-lg bg-red-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 "
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          <svg
-                            className="mr-2 h-5 w-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            ></path>
-                          </svg>
-                          Delete item
-                        </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -503,6 +540,95 @@ const ProductAdmin = (props: Props) => {
                 data-modal-toggle="delete-product-modal"
               >
                 No, cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        id="defaultModal"
+        tabIndex={-1}
+        aria-hidden="true"
+        className={`h-modal fixed top-0 right-0 left-0 z-50 grid ${
+          modalStatus ? "" : "hidden"
+        } w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 md:inset-0 md:h-full`}
+      >
+        <div className="relative h-full min-h-[500px] w-full min-w-[500px] max-w-2xl p-4 md:h-auto">
+          <div className="relative rounded-lg bg-white shadow dark:bg-gray-700">
+            <div className="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white lg:text-2xl">
+                Product Detail
+              </h3>
+              <button
+                type="button"
+                className="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                data-modal-toggle="defaultModal"
+                onClick={() => setModalStatus(false)}
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex items-start justify-between p-6 ">
+              <div>
+                <p className="mb-3 text-lg font-bold leading-relaxed text-black dark:text-gray-400">
+                  {productTarget.name}
+                </p>
+                <p className="mb-4 text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                  {productTarget.price}
+                </p>
+                <hr className="mb-4" />
+                {productTarget.status == 0 ? (
+                  <span className="mr-2 mt-4 rounded bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-200 dark:text-red-900">
+                    Active
+                  </span>
+                ) : (
+                  <span className="mr-2 mt-4 rounded bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800 dark:bg-green-200 dark:text-green-900">
+                    Inactive
+                  </span>
+                )}
+
+                <p className="mt-4 text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                  {productTarget.description}
+                </p>
+              </div>
+              <div>
+                <img
+                  src={productTarget.image}
+                  className="h-[150px] w-[150px] object-cover"
+                  alt=""
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 rounded-b border-t border-gray-200 p-6 dark:border-gray-600">
+              <Link to={"/admin/edit/" + productTarget._id}>
+                <button
+                  data-modal-toggle="defaultModal"
+                  type="button"
+                  className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Edit
+                </button>
+              </Link>
+              <button
+                data-modal-toggle="defaultModal"
+                type="button"
+                className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+                onClick={() => setModalStatus(false)}
+              >
+                Cancel
               </button>
             </div>
           </div>
